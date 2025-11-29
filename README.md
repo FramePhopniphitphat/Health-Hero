@@ -1,56 +1,115 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8" />
-  <title>ระบบบันทึกสุขภาพนักเรียน โรงเรียนสุรศักดิ์มนตรี</title>
+  <title>ระบบยืม–คืนอุปกรณ์กีฬาโรงเรียนสุรศักดิ์มนตรี</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <!-- SheetJS ใช้อ่านไฟล์ Excel -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    * { box-sizing: border-box; font-family: "Sarabun", system-ui, sans-serif; }
+    * {
+      box-sizing: border-box;
+      font-family: "Sarabun", system-ui, sans-serif;
+    }
     body {
       margin: 0;
-      background: #fef3c7; /* เหลืองอ่อน */
+      background: #ffedd5; /* พื้นหลังโทนส้มอ่อน */
       color: #333;
+    }
+    .app {
+      display: flex;
+      min-height: 100vh;
+    }
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #ff9800, #ffb74d); /* เมนูส้มไล่เฉด */
+      color: #fff;
+      padding: 20px 15px;
+    }
+    .sidebar h1 {
+      font-size: 1.2rem;
+      margin: 0 0 10px;
+      line-height: 1.4;
+    }
+    .sidebar small {
+      display: block;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      border: none;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+      cursor: pointer;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .nav-btn span.icon { font-size: 1.1rem; }
+    .nav-btn.active,
+    .nav-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-1px);
+    }
+    .main-content {
+      flex: 1;
       padding: 20px;
     }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background: #fff;
+    header h2 { margin: 0 0 5px; }
+    header p {
+      margin: 0 0 16px;
+      color: #555;
+      font-size: 0.9rem;
+    }
+    .page {
+      display: none;
+      background: #fff8f0;
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.05);
     }
-    h1 { margin-top: 0; }
-    h2 { margin-bottom: 8px; }
-    h3 { margin-bottom: 6px; }
-    .section {
-      margin-bottom: 24px;
-      padding-bottom: 16px;
-      border-bottom: 1px solid #e5e7eb;
-    }
-    .section:last-child {
-      border-bottom: none;
-    }
-    .small {
-      font-size: 0.8rem;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-    .grid {
+    .page.active { display: block; }
+    .card-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 10px 16px;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .card {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+    .card h3 { margin: 0 0 8px; font-size: 1rem; }
+    .card p { margin: 0; font-size: 0.9rem; color: #555; }
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
       margin-bottom: 10px;
     }
     label {
+      display: block;
       font-size: 0.9rem;
       margin-bottom: 4px;
-      display: block;
+      color: #444;
     }
-    input, select, textarea {
+    input[type="text"],
+    input[type="number"],
+    input[type="date"],
+    select,
+    textarea {
       width: 100%;
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: 8px;
       border: 1px solid #ddd;
       font-size: 0.9rem;
@@ -60,480 +119,781 @@
       min-height: 60px;
     }
     .btn-row {
-      margin: 10px 0 15px;
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
+      margin: 10px 0 15px;
     }
     .btn {
       border: none;
       border-radius: 999px;
       padding: 8px 16px;
-      cursor: pointer;
       font-size: 0.9rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s, box-shadow 0.1s;
       color: #fff;
     }
-    .btn-blue  { background: #3b82f6; }
-    .btn-green { background: #22c55e; }
-    .btn-red   { background: #ef4444; }
-    .btn-gray  { background: #6b7280; }
+    .btn:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+    .btn-green {
+      background: #4caf50; /* เขียว */
+      box-shadow: 0 2px 4px rgba(76,175,80,0.5);
+    }
+    .btn-blue {
+      background: #2196f3; /* ฟ้า */
+      box-shadow: 0 2px 4px rgba(33,150,243,0.5);
+    }
+    .btn-yellow {
+      background: #ffb300; /* เหลือง */
+      box-shadow: 0 2px 4px rgba(255,179,0,0.5);
+      color: #333;
+    }
     table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.8rem;
       margin-top: 10px;
+      font-size: 0.85rem;
     }
     th, td {
-      border: 1px solid #e5e7eb;
-      padding: 4px 6px;
+      border: 1px solid #eee;
+      padding: 6px 8px;
       text-align: left;
     }
-    th {
-      background: #e5e7eb;
+    th { background: #ffe0b2; }
+    ul.announcement {
+      list-style: disc;
+      padding-left: 22px;
+      margin: 4px 0 0;
+      font-size: 0.88rem;
     }
-    tr.clickable:hover {
-      background: #fef9c3;
-      cursor: pointer;
+    .section-title {
+      margin-top: 0;
+      margin-bottom: 12px;
+      font-size: 1.05rem;
     }
-    .badge {
-      display: inline-block;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      background: #fee2e2;
-      color: #b91c1c;
+    .chart-container {
+      max-width: 480px;
+      margin-top: 15px;
+    }
+    .muted {
+      font-size: 0.8rem;
+      color: #777;
     }
     @media (max-width: 768px) {
-      body { padding: 10px; }
-      .container { padding: 12px; border-radius: 10px; }
+      .app { flex-direction: column; }
+      .sidebar { width: 100%; }
     }
   </style>
 </head>
 <body>
-<div class="container">
-  <h1>ระบบบันทึกสุขภาพนักเรียน โรงเรียนสุรศักดิ์มนตรี</h1>
-  <p class="small">
-    ระบบนี้สามารถนำเข้าข้อมูลนักเรียนจากไฟล์ Excel (ฐานข้อมูลนักเรียน) และบันทึกผลสุขภาพเก็บใน LocalStorage บนเบราว์เซอร์
-  </p>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h1>ระบบยืม–คืนอุปกรณ์กีฬา<br>โรงเรียนสุรศักดิ์มนตรี</h1>
+    <small>Sports Equipment Borrowing System – Surasakmontree School</small>
 
-  <!-- SECTION 1: นำเข้าข้อมูลนักเรียนจาก Excel -->
-  <div class="section">
-    <h2>1. นำเข้าข้อมูลนักเรียนจาก Excel</h2>
-    <p>
-      เลือกไฟล์ Excel ที่มีชีต <strong>Students</strong> และหัวคอลัมน์อย่างน้อย:
-      <code>StudentID, FirstName, LastName, Class, Gender, BirthDate, ParentPhone</code>
-    </p>
-    <input type="file" id="fileExcel" accept=".xlsx,.xls" />
-    <div class="btn-row">
-      <button class="btn btn-blue" id="btnLoadExcel">📥 โหลดข้อมูลจากไฟล์</button>
-      <button class="btn btn-gray" id="btnClearStudents">🧹 ล้างฐานข้อมูลนักเรียน (ในหน้านี้)</button>
-    </div>
-    <div id="student-summary" class="small"></div>
-  </div>
+    <button class="nav-btn active" data-page="page-dashboard">
+      <span class="icon">🏠</span> หน้าแรก (Dashboard)
+    </button>
+    <button class="nav-btn" data-page="page-equipment">
+      <span class="icon">🏀</span> เพิ่มอุปกรณ์กีฬา
+    </button>
+    <button class="nav-btn" data-page="page-borrow">
+      <span class="icon">🤝</span> ยืม–คืนอุปกรณ์
+    </button>
+    <button class="nav-btn" data-page="page-member">
+      <span class="icon">➕</span> เพิ่มผู้ยืม (สมาชิก)
+    </button>
+    <button class="nav-btn" data-page="page-report">
+      <span class="icon">📊</span> รายงานการยืมใช้
+    </button>
+  </aside>
 
-  <!-- SECTION 2: ค้นหาและเลือกนักเรียน -->
-  <div class="section">
-    <h2>2. ค้นหาและเลือกนักเรียน</h2>
-    <div class="grid">
-      <div>
-        <label for="searchKeyword">ค้นหาจาก รหัส / ชื่อ / ห้อง</label>
-        <input id="searchKeyword" type="text" placeholder="เช่น 678001 หรือ ภพนิ หรือ ม.2/1" />
-      </div>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-blue" id="btnSearch">🔍 ค้นหา</button>
-      <button class="btn btn-gray" id="btnShowAll">📃 แสดงนักเรียนทั้งหมด</button>
-    </div>
-    <div id="student-table-container"></div>
-    <p class="small">
-      เคล็ดลับ: คลิกที่แถวของนักเรียน เพื่อเลือกไปบันทึกข้อมูลสุขภาพด้านล่าง
-    </p>
-    <div id="selected-student-info" class="small"></div>
-  </div>
+  <!-- MAIN -->
+  <main class="main-content">
+    <header>
+      <h2 id="page-title">หน้าแรก (Dashboard)</h2>
+      <p id="page-subtitle">ภาพรวมการยืม–คืนอุปกรณ์กีฬาโรงเรียนสุรศักดิ์มนตรี และเมนูนำทางหลัก</p>
+    </header>
 
-  <!-- SECTION 3: บันทึกข้อมูลสุขภาพ -->
-  <div class="section">
-    <h2>3. บันทึกผลสุขภาพนักเรียน</h2>
-    <p class="small">
-      * ต้องเลือกนักเรียนก่อน จากตารางด้านบน
-    </p>
-    <div class="grid">
-      <div>
-        <label for="record-date">วันที่ตรวจสุขภาพ</label>
-        <input id="record-date" type="date" />
+    <!-- 1. DASHBOARD -->
+    <section id="page-dashboard" class="page active">
+      <div class="card-grid">
+        <div class="card">
+          <h3>ภาพรวมอุปกรณ์</h3>
+          <p>จำนวนอุปกรณ์ทั้งหมด: <strong id="dash-total-equipment">0</strong></p>
+          <p>จำนวนอุปกรณ์ที่ถูกยืมอยู่: <strong id="dash-total-borrowed">0</strong></p>
+        </div>
+        <div class="card">
+          <h3>ภาพรวมการยืม</h3>
+          <p>จำนวนการยืมวันนี้: <strong id="dash-today-borrow">0</strong></p>
+          <p>จำนวนผู้ยืม/สมาชิกทั้งหมด: <strong id="dash-total-members">0</strong></p>
+        </div>
       </div>
-    </div>
-    <h3>ข้อมูลรูปร่าง</h3>
-    <div class="grid">
-      <div>
-        <label for="weight">น้ำหนัก (kg)</label>
-        <input id="weight" type="number" min="0" step="0.1" />
-      </div>
-      <div>
-        <label for="height">ส่วนสูง (cm)</label>
-        <input id="height" type="number" min="0" step="0.1" />
-      </div>
-    </div>
-    <h3>สมรรถภาพ / ตัวชี้วัดอื่น ๆ</h3>
-    <div class="grid">
-      <div>
-        <label for="bp">ความดันโลหิต (เช่น 110/70)</label>
-        <input id="bp" type="text" />
-      </div>
-      <div>
-        <label for="vision-left">สายตาซ้าย (เช่น 20/20)</label>
-        <input id="vision-left" type="text" />
-      </div>
-      <div>
-        <label for="vision-right">สายตาขวา (เช่น 20/25)</label>
-        <input id="vision-right" type="text" />
-      </div>
-      <div>
-        <label for="note">หมายเหตุ / ข้อสังเกต</label>
-        <input id="note" type="text" />
-      </div>
-    </div>
 
-    <div class="btn-row">
-      <button class="btn btn-green" id="btnSaveHealth">💾 บันทึกผลสุขภาพ</button>
-      <button class="btn btn-gray" id="btnClearHealthForm">🧹 ล้างฟอร์ม</button>
-      <button class="btn btn-red" id="btnDeleteAllHealth">🗑 ลบข้อมูลสุขภาพทั้งหมด (LocalStorage)</button>
-    </div>
-  </div>
+      <div class="card">
+        <h3>ข่าวประกาศ / ข้อเตือนการใช้อุปกรณ์กีฬา</h3>
+        <ul class="announcement">
+          <li>โปรดตรวจเช็กสภาพอุปกรณ์ก่อนและหลังการใช้งาน</li>
+          <li>อุปกรณ์ที่ยืมต้องคืนภายในวันเดียวกัน เว้นแต่ได้รับอนุญาตเป็นพิเศษ</li>
+        </ul>
+      </div>
+    </section>
 
-  <!-- SECTION 4: ตารางประวัติสุขภาพของนักเรียนที่เลือก -->
-  <div class="section">
-    <h2>4. ประวัติสุขภาพของนักเรียนที่เลือก</h2>
-    <div id="health-table-container"></div>
-  </div>
+    <!-- 2. ADD EQUIPMENT -->
+    <section id="page-equipment" class="page">
+      <h3 class="section-title">เพิ่มอุปกรณ์กีฬา (Add Equipment)</h3>
+      <div class="form-grid">
+        <div>
+          <label for="eq-name">ชื่ออุปกรณ์กีฬา</label>
+          <input id="eq-name" type="text" placeholder="เช่น ฟุตบอล, ลูกบาส, ไม้แบด" />
+        </div>
+        <div>
+          <label for="eq-category">ประเภท/หมวดหมู่</label>
+          <input id="eq-category" type="text" placeholder="ฟุตบอล, วอลเลย์บอล, ฟิตเนส ฯลฯ" />
+        </div>
+        <div>
+          <label for="eq-qty">จำนวนคงเหลือ/จำนวนทั้งหมด</label>
+          <input id="eq-qty" type="number" min="0" />
+        </div>
+        <div>
+          <label for="eq-location">สถานที่เก็บ</label>
+          <input id="eq-location" type="text" placeholder="เช่น ห้องพละ ชั้น 1, ห้องเก็บอุปกรณ์กีฬา" />
+        </div>
+        <div style="grid-column: 1 / -1;">
+          <label for="eq-desc">รายละเอียด/คำอธิบายเพิ่มเติม</label>
+          <textarea id="eq-desc" placeholder="ขนาด, เบอร์อุปกรณ์, รุ่น/ยี่ห้อ เป็นต้น"></textarea>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btnEqSave">💾 บันทึกข้อมูลใน Google Sheet</button>
+        <button class="btn btn-blue" id="btnEqLoad">📂 เรียกดูข้อมูล Google Sheet</button>
+      </div>
+      <div id="equipment-table-container"></div>
+      <p class="muted">
+        เมื่อดึงข้อมูลจาก Google Sheet แล้ว ระบบจะเก็บซ้ำใน Local Storage เพื่อเรียกดูได้เร็วขึ้น
+      </p>
+    </section>
 
-  <!-- SECTION 5: สรุปภาพรวม BMI ทั้งระบบ (ง่าย ๆ) -->
-  <div class="section">
-    <h2>5. สรุปภาพรวม BMI ง่าย ๆ (ทุกคน)</h2>
-    <div id="bmi-summary" class="small"></div>
-  </div>
+    <!-- 3. BORROW / RETURN -->
+    <section id="page-borrow" class="page">
+      <h3 class="section-title">ยืม–คืนอุปกรณ์กีฬา (Borrow / Return)</h3>
+      <div class="form-grid">
+        <div>
+          <label for="borrow-member">ผู้ยืม (สมาชิก)</label>
+          <select id="borrow-member">
+            <option value="">-- เลือกชื่อสมาชิก --</option>
+          </select>
+        </div>
+        <div>
+          <label for="borrow-equipment">อุปกรณ์กีฬา</label>
+          <select id="borrow-equipment">
+            <option value="">-- เลือกอุปกรณ์กีฬา --</option>
+          </select>
+        </div>
+        <div>
+          <label for="borrow-qty">จำนวนที่ยืม</label>
+          <input id="borrow-qty" type="number" min="1" value="1" />
+        </div>
+        <div>
+          <label for="borrow-date">วันที่ยืม/บันทึก</label>
+          <input id="borrow-date" type="date" />
+        </div>
+        <div>
+          <label for="borrow-due">วันที่กำหนดคืน</label>
+          <input id="borrow-due" type="date" />
+        </div>
+        <div>
+          <label for="borrow-type">ประเภทการบันทึก</label>
+          <select id="borrow-type">
+            <option value="borrow">ยืมอุปกรณ์</option>
+            <option value="return">คืนอุปกรณ์</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btnBorrowSave">✅ ยืนยันบันทึกการยืม/คืน</button>
+        <button class="btn btn-blue" id="btnBorrowLoad">📂 เรียกดูข้อมูล Google Sheet</button>
+      </div>
+      <div id="borrow-table-container"></div>
+      <p class="muted">
+        ประวัติการยืม–คืนที่โหลดล่าสุดจะถูกเก็บใน Local Storage เพื่อดูย้อนหลังได้โดยไม่ต้องดึงใหม่ทุกครั้ง
+      </p>
+    </section>
+
+    <!-- 4. ADD MEMBER -->
+    <section id="page-member" class="page">
+      <h3 class="section-title">เพิ่มผู้ยืม (สมาชิก)</h3>
+      <div class="form-grid">
+        <div>
+          <label for="mem-id">รหัสนักเรียน / รหัสสมาชิก</label>
+          <input id="mem-id" type="text" />
+        </div>
+        <div>
+          <label for="mem-name">ชื่อ–นามสกุล</label>
+          <input id="mem-name" type="text" />
+        </div>
+        <div>
+          <label for="mem-class">ห้องเรียน / ชั้นปี</label>
+          <input id="mem-class" type="text" placeholder="เช่น ม.2/1, ม.5/3" />
+        </div>
+        <div>
+          <label for="mem-phone">เบอร์โทรศัพท์ (ถ้ามี)</label>
+          <input id="mem-phone" type="text" />
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" id="btnMemSave">💾 เพิ่มสมาชิก / บันทึกข้อมูลใน Google Sheet</button>
+        <button class="btn btn-blue" id="btnMemLoad">📂 เรียกดูข้อมูล Google Sheet</button>
+      </div>
+      <div id="member-table-container"></div>
+      <p class="muted">
+        รายชื่อสมาชิกจะถูกใช้เป็น Dropdown ในหน้าการยืม–คืนอุปกรณ์ และเก็บซ้ำใน Local Storage
+      </p>
+    </section>
+
+    <!-- 5. REPORT -->
+    <section id="page-report" class="page">
+      <h3 class="section-title">รายงานการยืม–คืนอุปกรณ์ (Borrowing Report)</h3>
+      <div class="btn-row">
+        <button class="btn btn-blue" id="btnReportLoad">🔄 เรียกดูข้อมูล Google Sheet / อัปเดตรายงาน</button>
+      </div>
+      <div class="card-grid">
+        <div class="card">
+          <h3>สรุปภาพรวม</h3>
+          <p>จำนวนการยืมทั้งหมด: <strong id="rep-total-borrow">0</strong></p>
+          <p>จำนวนการคืนทั้งหมด: <strong id="rep-total-return">0</strong></p>
+          <p>อุปกรณ์ที่ถูกยืมบ่อยที่สุด: <strong id="rep-top-equipment">-</strong></p>
+        </div>
+        <div class="card">
+          <h3>จำนวนสมาชิกผู้ยืม</h3>
+          <p><strong id="rep-member-count">0</strong> คน</p>
+        </div>
+      </div>
+      <div class="chart-container">
+        <canvas id="borrowChart"></canvas>
+      </div>
+      <div id="report-table-container"></div>
+      <p class="muted">
+        ข้อมูลรายงานล่าสุดจะถูกเก็บไว้ใน Local Storage เพื่อลดการดึงข้อมูลจาก Google Sheet บ่อย ๆ
+      </p>
+    </section>
+  </main>
 </div>
 
 <script>
-  /* -------------------- CONFIG & STORAGE -------------------- */
-  const LS_STUDENTS_KEY = 'ssm_health_students';
-  const LS_HEALTH_KEY   = 'ssm_health_records';
+  /* ================== CONFIG ================== */
+  // ตามสเปกที่ให้มา (ในทางปฏิบัติควรเป็น URL ของ Web App จาก Apps Script)
+  const APP_SCRIPT_URL =
+    'https://docs.google.com/spreadsheets/d/1o9B3fb1E6I8iB6naDcXbwR9CONZT2QbSemUQ9JguWpc/edit?gid=0#gid=0';
 
-  let students = [];       // ข้อมูลนักเรียนจาก Excel / LocalStorage
-  let healthRecords = [];  // ข้อมูลสุขภาพของทุกคน
-  let selectedStudentId = null;
+  const LS_KEYS = {
+    EQUIP: 'ssm_sports_equipment',
+    MEMBER: 'ssm_sports_members',
+    BORROW: 'ssm_sports_borrow',
+  };
 
-  /* -------------------- Helper LocalStorage -------------------- */
-  function loadFromLocalStorage() {
-    try {
-      const s = localStorage.getItem(LS_STUDENTS_KEY);
-      if (s) students = JSON.parse(s);
-    } catch (e) { students = []; }
+  /* ================== JSONP HELPER ================== */
+  function callAppsScript(params, onSuccess, onError) {
+    const callbackName = 'gsCallback_' + Date.now() + '_' + Math.floor(Math.random()*1000);
+    params.callback = callbackName;
 
-    try {
-      const h = localStorage.getItem(LS_HEALTH_KEY);
-      if (h) healthRecords = JSON.parse(h);
-    } catch (e) { healthRecords = []; }
-  }
+    const query = Object.keys(params)
+      .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+      .join('&');
 
-  function saveStudentsToLocal() {
-    localStorage.setItem(LS_STUDENTS_KEY, JSON.stringify(students));
-  }
+    const script = document.createElement('script');
+    script.src = APP_SCRIPT_URL + (APP_SCRIPT_URL.includes('?') ? '&' : '?') + query;
 
-  function saveHealthToLocal() {
-    localStorage.setItem(LS_HEALTH_KEY, JSON.stringify(healthRecords));
-  }
-
-  /* -------------------- อ่านไฟล์ Excel -------------------- */
-  document.getElementById('btnLoadExcel').addEventListener('click', () => {
-    const input = document.getElementById('fileExcel');
-    if (!input.files || input.files.length === 0) {
-      alert('กรุณาเลือกไฟล์ Excel ก่อน');
-      return;
-    }
-    const file = input.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      const data = new Uint8Array(e.target.result);
-      const workbook = XLSX.read(data, {type: 'array'});
-      const sheetName = 'Students';
-      if (!workbook.Sheets[sheetName]) {
-        alert('ไม่พบชีตชื่อ "Students" ในไฟล์ Excel');
-        return;
+    window[callbackName] = function(res) {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      if (res && res.success) {
+        onSuccess && onSuccess(res);
+      } else {
+        onError && onError(res || {success:false, message:'Unknown error'});
       }
-      const sheet = workbook.Sheets[sheetName];
-      const json = XLSX.utils.sheet_to_json(sheet, {defval: ''});
-      // ควรมีคอลัมน์ StudentID, FirstName, LastName, Class, Gender, BirthDate, ParentPhone
-      students = json.map(row => ({
-        StudentID: String(row.StudentID || '').trim(),
-        FirstName: String(row.FirstName || '').trim(),
-        LastName: String(row.LastName || '').trim(),
-        Class: String(row.Class || '').trim(),
-        Gender: String(row.Gender || '').trim(),
-        BirthDate: String(row.BirthDate || '').trim(),
-        ParentPhone: String(row.ParentPhone || '').trim()
-      })).filter(s => s.StudentID); // เฉพาะแถวที่มีรหัสนักเรียน
-
-      saveStudentsToLocal();
-      renderStudentSummary();
-      renderStudentTable(students.slice(0, 50)); // แสดงตัวอย่าง 50 คนแรก
-      alert('โหลดข้อมูลนักเรียนจาก Excel สำเร็จ: ' + students.length + ' คน');
     };
-    reader.readAsArrayBuffer(file);
-  });
 
-  document.getElementById('btnClearStudents').addEventListener('click', () => {
-    if (confirm('ยืนยันล้างฐานข้อมูลนักเรียนที่เก็บไว้ในหน้านี้ (LocalStorage)?')) {
-      students = [];
-      saveStudentsToLocal();
-      renderStudentSummary();
-      document.getElementById('student-table-container').innerHTML = '';
-      selectedStudentId = null;
-      document.getElementById('selected-student-info').innerHTML = '';
-      alert('ล้างข้อมูลนักเรียนเรียบร้อย');
-    }
-  });
+    script.onerror = function() {
+      delete window[callbackName];
+      document.body.removeChild(script);
+      onError && onError({success:false, message:'ไม่สามารถติดต่อ Google Apps Script ได้'});
+    };
 
-  /* -------------------- แสดงภาพรวมข้อมูลนักเรียน -------------------- */
-  function renderStudentSummary() {
-    const div = document.getElementById('student-summary');
-    if (!students.length) {
-      div.innerHTML = '<span class="badge">ยังไม่มีข้อมูลนักเรียนในระบบ</span>';
-      return;
-    }
-    const classes = Array.from(new Set(students.map(s => s.Class).filter(Boolean)));
-    div.innerHTML = `
-      มีข้อมูลนักเรียนทั้งหมด <strong>${students.length}</strong> คน<br>
-      ห้อง/ชั้นในระบบ: ${classes.join(', ') || '-'}
-    `;
+    document.body.appendChild(script);
   }
 
-  /* -------------------- ค้นหาและแสดงตารางนักเรียน -------------------- */
-  document.getElementById('btnSearch').addEventListener('click', () => {
-    const keyword = document.getElementById('searchKeyword').value.trim();
-    const results = searchStudent(keyword);
-    renderStudentTable(results);
+  /* ================== LOCAL STORAGE ================== */
+  function getLS(key) {
+    try { return JSON.parse(localStorage.getItem(key) || '[]'); }
+    catch(e) { return []; }
+  }
+  function setLS(key, value) {
+    localStorage.setItem(key, JSON.stringify(value));
+  }
+
+  /* ================== NAVIGATION ================== */
+  const pageTitle = document.getElementById('page-title');
+  const pageSubtitle = document.getElementById('page-subtitle');
+  const pageMeta = {
+    'page-dashboard': {
+      title: 'หน้าแรก (Dashboard)',
+      subtitle: 'ภาพรวมการยืม–คืนอุปกรณ์กีฬาโรงเรียนสุรศักดิ์มนตรี และเมนูนำทางหลัก'
+    },
+    'page-equipment': {
+      title: 'หน้าเพิ่มอุปกรณ์กีฬา',
+      subtitle: 'บันทึกและจัดการข้อมูลอุปกรณ์กีฬาในห้องพละ'
+    },
+    'page-borrow': {
+      title: 'หน้ายืม–คืนอุปกรณ์กีฬา',
+      subtitle: 'บันทึกการยืมและการคืนอุปกรณ์ของนักเรียนและครู'
+    },
+    'page-member': {
+      title: 'หน้าเพิ่มผู้ยืม (สมาชิก)',
+      subtitle: 'จัดการข้อมูลสมาชิกที่สามารถยืมอุปกรณ์กีฬาได้'
+    },
+    'page-report': {
+      title: 'หน้ารายงานการยืม–คืนอุปกรณ์',
+      subtitle: 'ตรวจสอบสถิติการยืม–คืนอุปกรณ์กีฬา'
+    }
+  };
+
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const pageId = btn.getAttribute('data-page');
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+
+      if (pageMeta[pageId]) {
+        pageTitle.textContent = pageMeta[pageId].title;
+        pageSubtitle.textContent = pageMeta[pageId].subtitle;
+      }
+
+      if (pageId === 'page-borrow') {
+        populateMemberDropdown();
+        populateEquipmentDropdown();
+      }
+      if (pageId === 'page-dashboard') {
+        updateDashboard();
+      }
+    });
   });
 
-  document.getElementById('btnShowAll').addEventListener('click', () => {
-    renderStudentTable(students);
+  /* ================== EQUIPMENT ================== */
+  const eqNameEl = document.getElementById('eq-name');
+  const eqCatEl = document.getElementById('eq-category');
+  const eqQtyEl = document.getElementById('eq-qty');
+  const eqLocEl = document.getElementById('eq-location');
+  const eqDescEl = document.getElementById('eq-desc');
+  const eqTableContainer = document.getElementById('equipment-table-container');
+
+  document.getElementById('btnEqSave').addEventListener('click', () => {
+    const name = eqNameEl.value.trim();
+    const category = eqCatEl.value.trim();
+    const qty = eqQtyEl.value.trim();
+    const location = eqLocEl.value.trim();
+    const desc = eqDescEl.value.trim();
+
+    if (!name || !qty) {
+      Swal.fire('กรุณากรอกชื่ออุปกรณ์และจำนวนคงเหลือ', '', 'warning');
+      return;
+    }
+
+    Swal.fire({ title: 'กำลังบันทึก...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+
+    callAppsScript(
+      {
+        action: 'addEquipment',
+        name,
+        category,
+        quantity: qty,
+        location,
+        description: desc
+      },
+      res => {
+        Swal.fire('บันทึกสำเร็จ', res.message || '', 'success');
+        loadEquipmentFromServer(false);
+      },
+      err => {
+        Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถบันทึกได้', 'error');
+      }
+    );
   });
 
-  function searchStudent(keyword) {
-    if (!keyword) return students;
-    const lower = keyword.toLowerCase();
-    return students.filter(s =>
-      s.StudentID.toLowerCase().includes(lower) ||
-      s.FirstName.toLowerCase().includes(lower) ||
-      s.LastName.toLowerCase().includes(lower) ||
-      s.Class.toLowerCase().includes(lower)
+  document.getElementById('btnEqLoad').addEventListener('click', () => {
+    loadEquipmentFromServer(true);
+  });
+
+  function loadEquipmentFromServer(showAlert) {
+    if (showAlert) {
+      Swal.fire({ title: 'กำลังโหลดข้อมูลอุปกรณ์...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+    }
+    callAppsScript(
+      { action: 'getEquipment' },
+      res => {
+        const data = res.data || [];
+        setLS(LS_KEYS.EQUIP, data);
+        renderEquipmentTable(data);
+        updateDashboard();
+        if (showAlert) Swal.fire('สำเร็จ', 'โหลดข้อมูลอุปกรณ์เรียบร้อย', 'success');
+      },
+      err => {
+        if (showAlert) Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถโหลดข้อมูลได้', 'error');
+      }
     );
   }
 
-  function renderStudentTable(list) {
-    const container = document.getElementById('student-table-container');
-    if (!list || !list.length) {
-      container.innerHTML = '<p>ไม่พบนักเรียนที่ตรงกับเงื่อนไข</p>';
-      return;
-    }
-    let html = '<table><thead><tr>';
-    html += '<th>รหัส</th><th>ชื่อ–นามสกุล</th><th>ห้อง/ชั้น</th><th>เพศ</th><th>วันเกิด</th><th>ผู้ปกครอง</th>';
-    html += '</tr></thead><tbody>';
-    list.forEach(s => {
-      html += `
-        <tr class="clickable" data-student-id="${s.StudentID}">
-          <td>${s.StudentID}</td>
-          <td>${s.FirstName} ${s.LastName}</td>
-          <td>${s.Class || '-'}</td>
-          <td>${s.Gender || '-'}</td>
-          <td>${s.BirthDate || '-'}</td>
-          <td>${s.ParentPhone || '-'}</td>
-        </tr>
-      `;
-    });
-    html += '</tbody></table>';
-    container.innerHTML = html;
-
-    // เพิ่ม event เมื่อคลิกแถวนักเรียน
-    container.querySelectorAll('tr.clickable').forEach(tr => {
-      tr.addEventListener('click', () => {
-        const sid = tr.getAttribute('data-student-id');
-        selectStudent(sid);
-      });
-    });
-  }
-
-  function selectStudent(studentId) {
-    selectedStudentId = studentId;
-    const stu = students.find(s => s.StudentID === studentId);
-    if (!stu) return;
-    const infoDiv = document.getElementById('selected-student-info');
-    infoDiv.innerHTML = `
-      <strong>นักเรียนที่เลือก:</strong> 
-      [${stu.StudentID}] ${stu.FirstName} ${stu.LastName} (${stu.Class || '-'}) 
-      เพศ: ${stu.Gender || '-'} โทรผู้ปกครอง: ${stu.ParentPhone || '-'}
-    `;
-    renderHealthTableForStudent(studentId);
-  }
-
-  /* -------------------- บันทึกสุขภาพ -------------------- */
-  function calcBMI(weight, heightCm) {
-    const w = Number(weight);
-    const h = Number(heightCm) / 100;
-    if (!w || !h) return '';
-    return (w / (h * h)).toFixed(1);
-  }
-
-  document.getElementById('btnSaveHealth').addEventListener('click', () => {
-    if (!selectedStudentId) {
-      alert('กรุณาเลือกนักเรียนจากรายการก่อน');
-      return;
-    }
-    const recordDate  = document.getElementById('record-date').value;
-    const weight      = document.getElementById('weight').value;
-    const height      = document.getElementById('height').value;
-    const bp          = document.getElementById('bp').value;
-    const visionLeft  = document.getElementById('vision-left').value;
-    const visionRight = document.getElementById('vision-right').value;
-    const note        = document.getElementById('note').value;
-
-    if (!recordDate) {
-      alert('กรุณากรอกวันที่ตรวจสุขภาพ');
-      return;
-    }
-
-    const bmi = calcBMI(weight, height);
-
-    const newRecord = {
-      RecordID: Date.now(),
-      StudentID: selectedStudentId,
-      RecordDate: recordDate,
-      WeightKg: weight,
-      HeightCm: height,
-      BMI: bmi,
-      BloodPressure: bp,
-      VisionLeft: visionLeft,
-      VisionRight: visionRight,
-      Note: note
-    };
-
-    healthRecords.push(newRecord);
-    saveHealthToLocal();
-    renderHealthTableForStudent(selectedStudentId);
-    renderBMISummary();
-    clearHealthForm();
-    alert('บันทึกข้อมูลสุขภาพเรียบร้อย');
-  });
-
-  document.getElementById('btnClearHealthForm').addEventListener('click', clearHealthForm);
-
-  function clearHealthForm() {
-    document.getElementById('record-date').value = '';
-    document.getElementById('weight').value = '';
-    document.getElementById('height').value = '';
-    document.getElementById('bp').value = '';
-    document.getElementById('vision-left').value = '';
-    document.getElementById('vision-right').value = '';
-    document.getElementById('note').value = '';
-  }
-
-  document.getElementById('btnDeleteAllHealth').addEventListener('click', () => {
-    if (confirm('ยืนยันลบข้อมูลสุขภาพของนักเรียนทุกคน (ลบจาก LocalStorage)?')) {
-      healthRecords = [];
-      saveHealthToLocal();
-      if (selectedStudentId) renderHealthTableForStudent(selectedStudentId);
-      renderBMISummary();
-      alert('ลบข้อมูลสุขภาพทั้งหมดแล้ว');
-    }
-  });
-
-  /* -------------------- ตารางประวัติสุขภาพของนักเรียน -------------------- */
-  function renderHealthTableForStudent(studentId) {
-    const container = document.getElementById('health-table-container');
-    const list = healthRecords
-      .filter(r => String(r.StudentID) === String(studentId))
-      .sort((a, b) => (a.RecordDate > b.RecordDate ? -1 : 1)); // ใหม่อยู่บน
-
+  function renderEquipmentTable(data) {
+    const list = data || getLS(LS_KEYS.EQUIP);
     if (!list.length) {
-      container.innerHTML = '<p>ยังไม่มีประวัติสุขภาพของนักเรียนคนนี้</p>';
+      eqTableContainer.innerHTML = '<p>ยังไม่มีข้อมูลอุปกรณ์กีฬา</p>';
       return;
     }
-
     let html = '<table><thead><tr>';
-    html += '<th>วันที่ตรวจ</th><th>นน.(kg)</th><th>สส.(cm)</th><th>BMI</th><th>ความดัน</th><th>สายตาซ้าย</th><th>สายตาขวา</th><th>หมายเหตุ</th>';
+    html += '<th>ชื่ออุปกรณ์</th><th>ประเภท/หมวดหมู่</th><th>จำนวน</th><th>สถานที่เก็บ</th><th>รายละเอียด</th>';
     html += '</tr></thead><tbody>';
-    list.forEach(r => {
-      html += `
-        <tr>
-          <td>${r.RecordDate}</td>
-          <td>${r.WeightKg || '-'}</td>
-          <td>${r.HeightCm || '-'}</td>
-          <td>${r.BMI || '-'}</td>
-          <td>${r.BloodPressure || '-'}</td>
-          <td>${r.VisionLeft || '-'}</td>
-          <td>${r.VisionRight || '-'}</td>
-          <td>${r.Note || '-'}</td>
-        </tr>
-      `;
+    list.forEach(e => {
+      html += `<tr>
+        <td>${e.name || ''}</td>
+        <td>${e.category || '-'}</td>
+        <td>${e.quantity || '-'}</td>
+        <td>${e.location || '-'}</td>
+        <td>${e.description || '-'}</td>
+      </tr>`;
     });
     html += '</tbody></table>';
-    container.innerHTML = html;
+    eqTableContainer.innerHTML = html;
   }
 
-  /* -------------------- สรุปภาพรวม BMI ทั้งระบบ -------------------- */
-  function renderBMISummary() {
-    const div = document.getElementById('bmi-summary');
-    if (!healthRecords.length) {
-      div.innerHTML = 'ยังไม่มีข้อมูลสุขภาพในระบบ';
+  /* ================== MEMBERS ================== */
+  const memIdEl = document.getElementById('mem-id');
+  const memNameEl = document.getElementById('mem-name');
+  const memClassEl = document.getElementById('mem-class');
+  const memPhoneEl = document.getElementById('mem-phone');
+  const memTableContainer = document.getElementById('member-table-container');
+
+  document.getElementById('btnMemSave').addEventListener('click', () => {
+    const memberId = memIdEl.value.trim();
+    const name = memNameEl.value.trim();
+    const className = memClassEl.value.trim();
+    const phone = memPhoneEl.value.trim();
+
+    if (!memberId || !name) {
+      Swal.fire('กรุณากรอกรหัสและชื่อ–นามสกุลสมาชิก', '', 'warning');
       return;
     }
-    // เอา "ผลตรวจล่าสุด" ของแต่ละคน
-    const latestByStudent = {};
-    healthRecords.forEach(r => {
-      const sid = r.StudentID;
-      if (!latestByStudent[sid] || latestByStudent[sid].RecordDate < r.RecordDate) {
-        latestByStudent[sid] = r;
+
+    Swal.fire({ title: 'กำลังบันทึกสมาชิก...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+
+    callAppsScript(
+      { action: 'addMember', memberId, name, className, phone },
+      res => {
+        Swal.fire('บันทึกสำเร็จ', res.message || '', 'success');
+        loadMembersFromServer(false);
+      },
+      err => {
+        Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถบันทึกได้', 'error');
+      }
+    );
+  });
+
+  document.getElementById('btnMemLoad').addEventListener('click', () => {
+    loadMembersFromServer(true);
+  });
+
+  function loadMembersFromServer(showAlert) {
+    if (showAlert) {
+      Swal.fire({ title: 'กำลังโหลดข้อมูลสมาชิก...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+    }
+    callAppsScript(
+      { action: 'getMembers' },
+      res => {
+        const data = res.data || [];
+        setLS(LS_KEYS.MEMBER, data);
+        renderMemberTable(data);
+        updateDashboard();
+        if (showAlert) Swal.fire('สำเร็จ', 'โหลดข้อมูลสมาชิกเรียบร้อย', 'success');
+      },
+      err => {
+        if (showAlert) Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถโหลดข้อมูลได้', 'error');
+      }
+    );
+  }
+
+  function renderMemberTable(data) {
+    const list = data || getLS(LS_KEYS.MEMBER);
+    if (!list.length) {
+      memTableContainer.innerHTML = '<p>ยังไม่มีข้อมูลสมาชิกผู้ยืม</p>';
+      return;
+    }
+    let html = '<table><thead><tr>';
+    html += '<th>รหัสสมาชิก</th><th>ชื่อ–นามสกุล</th><th>ห้องเรียน/ชั้นปี</th><th>เบอร์โทรศัพท์</th>';
+    html += '</tr></thead><tbody>';
+    list.forEach(m => {
+      html += `<tr>
+        <td>${m.memberId || ''}</td>
+        <td>${m.name || ''}</td>
+        <td>${m.className || '-'}</td>
+        <td>${m.phone || '-'}</td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    memTableContainer.innerHTML = html;
+  }
+
+  function populateMemberDropdown() {
+    const members = getLS(LS_KEYS.MEMBER);
+    const select = document.getElementById('borrow-member');
+    select.innerHTML = '<option value="">-- เลือกชื่อสมาชิก --</option>';
+    members.forEach(m => {
+      if (!m.memberId) return;
+      const opt = document.createElement('option');
+      opt.value = m.memberId;
+      opt.textContent = `${m.memberId} - ${m.name || ''}`;
+      select.appendChild(opt);
+    });
+  }
+
+  /* ================== BORROW / RETURN ================== */
+  const borrowMemberEl = document.getElementById('borrow-member');
+  const borrowEquipEl = document.getElementById('borrow-equipment');
+  const borrowQtyEl = document.getElementById('borrow-qty');
+  const borrowDateEl = document.getElementById('borrow-date');
+  const borrowDueEl = document.getElementById('borrow-due');
+  const borrowTypeEl = document.getElementById('borrow-type');
+  const borrowTableContainer = document.getElementById('borrow-table-container');
+
+  document.getElementById('btnBorrowSave').addEventListener('click', () => {
+    const memberId = borrowMemberEl.value;
+    const equipmentName = borrowEquipEl.value;
+    const qty = borrowQtyEl.value.trim();
+    const date = borrowDateEl.value;
+    const dueDate = borrowDueEl.value;
+    const type = borrowTypeEl.value;
+
+    if (!memberId || !equipmentName || !qty || !date) {
+      Swal.fire('กรุณาเลือกสมาชิก/อุปกรณ์ ใส่จำนวน และวันที่ให้ครบถ้วน', '', 'warning');
+      return;
+    }
+
+    const members = getLS(LS_KEYS.MEMBER);
+    const m = members.find(x => x.memberId === memberId);
+    const memberName = m ? m.name : memberId;
+
+    Swal.fire({ title: 'กำลังบันทึกการยืม/คืน...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+
+    callAppsScript(
+      {
+        action: 'addBorrow',
+        memberId,
+        memberName,
+        equipmentName,
+        quantity: qty,
+        date,
+        dueDate,
+        type
+      },
+      res => {
+        Swal.fire('บันทึกสำเร็จ', res.message || '', 'success');
+        loadBorrowFromServer(false);
+      },
+      err => {
+        Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถบันทึกได้', 'error');
+      }
+    );
+  });
+
+  document.getElementById('btnBorrowLoad').addEventListener('click', () => {
+    loadBorrowFromServer(true);
+  });
+
+  function loadBorrowFromServer(showAlert) {
+    if (showAlert) {
+      Swal.fire({ title: 'กำลังโหลดประวัติการยืม–คืน...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+    }
+    callAppsScript(
+      { action: 'getBorrowRecords' },
+      res => {
+        const data = res.data || [];
+        setLS(LS_KEYS.BORROW, data);
+        renderBorrowTable(data);
+        updateDashboard();
+        if (showAlert) Swal.fire('สำเร็จ', 'โหลดประวัติการยืม–คืนเรียบร้อย', 'success');
+      },
+      err => {
+        if (showAlert) Swal.fire('เกิดข้อผิดพลาด', err.message || 'ไม่สามารถโหลดข้อมูลได้', 'error');
+      }
+    );
+  }
+
+  function renderBorrowTable(data) {
+    const list = data || getLS(LS_KEYS.BORROW);
+    if (!list.length) {
+      borrowTableContainer.innerHTML = '<p>ยังไม่มีข้อมูลประวัติการยืม–คืน</p>';
+      return;
+    }
+    let html = '<table><thead><tr>';
+    html += '<th>วันที่</th><th>ประเภท</th><th>ชื่อผู้ยืม</th><th>อุปกรณ์</th><th>จำนวน</th><th>กำหนดคืน</th>';
+    html += '</tr></thead><tbody>';
+    list
+      .sort((a,b) => (a.date > b.date ? -1 : 1))
+      .forEach(r => {
+        html += `<tr>
+          <td>${r.date || ''}</td>
+          <td>${r.type === 'borrow' ? 'ยืมอุปกรณ์' : 'คืนอุปกรณ์'}</td>
+          <td>${r.memberName || ''}</td>
+          <td>${r.equipmentName || ''}</td>
+          <td>${r.quantity || ''}</td>
+          <td>${r.dueDate || '-'}</td>
+        </tr>`;
+      });
+    html += '</tbody></table>';
+    borrowTableContainer.innerHTML = html;
+  }
+
+  function populateEquipmentDropdown() {
+    const equipment = getLS(LS_KEYS.EQUIP);
+    const select = document.getElementById('borrow-equipment');
+    select.innerHTML = '<option value="">-- เลือกอุปกรณ์กีฬา --</option>';
+    equipment.forEach(e => {
+      if (!e.name) return;
+      const opt = document.createElement('option');
+      opt.value = e.name;
+      opt.textContent = `${e.name} (จำนวนทั้งหมด: ${e.quantity || '-'})`;
+      select.appendChild(opt);
+    });
+  }
+
+  /* ================== REPORT ================== */
+  let borrowChart = null;
+
+  document.getElementById('btnReportLoad').addEventListener('click', () => {
+    Swal.fire({ title: 'กำลังดึงข้อมูลรายงาน...', allowOutsideClick:false, didOpen:() => Swal.showLoading() });
+
+    // โหลด borrow
+    callAppsScript(
+      { action: 'getBorrowRecords' },
+      res => {
+        const borrowData = res.data || [];
+        setLS(LS_KEYS.BORROW, borrowData);
+        // โหลด member
+        callAppsScript(
+          { action: 'getMembers' },
+          res2 => {
+            const memberData = res2.data || [];
+            setLS(LS_KEYS.MEMBER, memberData);
+            buildReport(borrowData, memberData);
+            updateDashboard();
+            Swal.fire('สำเร็จ', 'อัปเดตรายงานจาก Google Sheet เรียบร้อย', 'success');
+          },
+          err2 => {
+            Swal.fire('เกิดข้อผิดพลาด', err2.message || 'โหลดข้อมูลสมาชิกไม่สำเร็จ', 'error');
+          }
+        );
+      },
+      err => {
+        Swal.fire('เกิดข้อผิดพลาด', err.message || 'โหลดประวัติการยืม–คืนไม่สำเร็จ', 'error');
+      }
+    );
+  });
+
+  function buildReport(borrowData, memberData) {
+    const records = borrowData || getLS(LS_KEYS.BORROW);
+    const members = memberData || getLS(LS_KEYS.MEMBER);
+
+    const totalBorrow = records.filter(r => r.type === 'borrow').length;
+    const totalReturn = records.filter(r => r.type === 'return').length;
+    document.getElementById('rep-total-borrow').textContent = totalBorrow;
+    document.getElementById('rep-total-return').textContent = totalReturn;
+    document.getElementById('rep-member-count').textContent = members.length;
+
+    const countByEq = {};
+    records.forEach(r => {
+      if (r.type === 'borrow') {
+        if (!countByEq[r.equipmentName]) countByEq[r.equipmentName] = 0;
+        countByEq[r.equipmentName] += Number(r.quantity || 0);
       }
     });
-    const latestList = Object.values(latestByStudent);
-    // ดึง BMI ที่เป็นตัวเลข
-    const bmiValues = latestList
-      .map(r => Number(r.BMI))
-      .filter(v => !isNaN(v) && v > 0);
 
-    if (!bmiValues.length) {
-      div.innerHTML = 'ยังไม่มีค่า BMI ที่คำนวณได้';
-      return;
+    let topEq = '-';
+    if (Object.keys(countByEq).length > 0) {
+      topEq = Object.entries(countByEq).sort((a,b) => b[1] - a[1])[0][0];
     }
+    document.getElementById('rep-top-equipment').textContent = topEq;
 
-    const avg = (bmiValues.reduce((a,b) => a + b, 0) / bmiValues.length).toFixed(1);
-    let under = 0, normal = 0, over = 0, obese = 0;
-    bmiValues.forEach(v => {
-      if (v < 18.5) under++;
-      else if (v < 23) normal++;
-      else if (v < 25) over++;
-      else obese++;
+    const labels = Object.keys(countByEq);
+    const values = Object.values(countByEq);
+    const ctx = document.getElementById('borrowChart').getContext('2d');
+    if (borrowChart) borrowChart.destroy();
+    borrowChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels,
+        datasets: [{ label: 'จำนวนที่ถูกยืม', data: values }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true } }
+      }
     });
 
-    div.innerHTML = `
-      ใช้ผลตรวจล่าสุดของนักเรียนแต่ละคนที่มีข้อมูล BMI:<br>
-      - จำนวนนักเรียนที่มีข้อมูล BMI: <strong>${bmiValues.length}</strong> คน<br>
-      - ค่า BMI เฉลี่ย: <strong>${avg}</strong><br>
-      - ต่ำกว่าเกณฑ์ (&lt;18.5): <strong>${under}</strong> คน<br>
-      - ปกติ (18.5–22.9): <strong>${normal}</strong> คน<br>
-      - น้ำหนักเกิน (23.0–24.9): <strong>${over}</strong> คน<br>
-      - อ้วน (&ge;25): <strong>${obese}</strong> คน
-    `;
+    const container = document.getElementById('report-table-container');
+    if (!records.length) {
+      container.innerHTML = '<p>ยังไม่มีข้อมูลประวัติการยืม–คืน</p>';
+      return;
+    }
+    let html = '<table><thead><tr>';
+    html += '<th>วันที่</th><th>ประเภท</th><th>ชื่อผู้ยืม</th><th>อุปกรณ์</th><th>จำนวน</th><th>กำหนดคืน</th>';
+    html += '</tr></thead><tbody>';
+    records
+      .sort((a,b) => (a.date > b.date ? -1 : 1))
+      .forEach(r => {
+        html += `<tr>
+          <td>${r.date || ''}</td>
+          <td>${r.type === 'borrow' ? 'ยืมอุปกรณ์' : 'คืนอุปกรณ์'}</td>
+          <td>${r.memberName || ''}</td>
+          <td>${r.equipmentName || ''}</td>
+          <td>${r.quantity || ''}</td>
+          <td>${r.dueDate || '-'}</td>
+        </tr>`;
+      });
+    html += '</tbody></table>';
+    container.innerHTML = html;
   }
 
-  /* -------------------- INIT -------------------- */
+  /* ================== DASHBOARD ================== */
+  function updateDashboard() {
+    const eq = getLS(LS_KEYS.EQUIP);
+    const mem = getLS(LS_KEYS.MEMBER);
+    const bor = getLS(LS_KEYS.BORROW);
+
+    document.getElementById('dash-total-equipment').textContent = eq.length;
+    document.getElementById('dash-total-members').textContent = mem.length;
+
+    const today = new Date().toISOString().slice(0,10);
+    const todayBorrow = bor.filter(r => r.type === 'borrow' && r.date === today).length;
+    const totalBorrowed = bor.filter(r => r.type === 'borrow').length;
+
+    document.getElementById('dash-today-borrow').textContent = todayBorrow;
+    document.getElementById('dash-total-borrowed').textContent = totalBorrowed;
+  }
+
+  /* ================== INIT ================== */
   (function init() {
-    loadFromLocalStorage();
-    renderStudentSummary();
-    if (students.length) {
-      renderStudentTable(students.slice(0, 50));
-    }
-    renderBMISummary();
+    renderEquipmentTable();
+    renderMemberTable();
+    renderBorrowTable();
+    updateDashboard();
   })();
 </script>
 </body>
