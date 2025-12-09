@@ -1,430 +1,560 @@
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>เกมทายสถานการณ์เสี่ยง – Healthy Hero Edition</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <title>Smart Facility Management</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    *{box-sizing:border-box;font-family:"Sarabun",system-ui,-apple-system,sans-serif;}
 
-<style>
-/* ฟอนต์และการตั้งค่าเริ่มต้น */
-* { font-family: "Sarabun", sans-serif; box-sizing: border-box; }
-body {
-  margin: 0;
-  padding: 20px;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: linear-gradient(135deg, #ffafbd, #ffc3a0, #fff6b7);
-}
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:20px;
+      background:linear-gradient(135deg,#ffef9f,#ffe66d,#63a4ff);
+    }
 
-/* กล่องหลัก */
-.container {
-  width: 95%;
-  max-width: 820px;
-  background: #ffffffd9;
-  backdrop-filter: blur(6px);
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0px 8px 20px rgba(0,0,0,0.2);
-  animation: fadeIn .5s ease;
-}
+    .card{
+      width:100%;
+      max-width:1024px;
+      background:#ffffffee;
+      border-radius:18px;
+      box-shadow:0 8px 20px rgba(0,0,0,0.18);
+      padding:20px 24px 24px;
+    }
 
-@keyframes fadeIn {
-  from { opacity:0; transform: scale(0.96); }
-  to { opacity:1; transform: scale(1); }
-}
+    h1{
+      margin-top:0;
+      text-align:center;
+      color:#004e92;
+    }
 
-/* ส่วนหัว */
-h1 {
-  text-align: center;
-  font-size: 1.8rem;
-  color: #e11d48;
-  margin-top: 0;
-}
+    .subtitle{
+      text-align:center;
+      color:#555;
+      margin-bottom:20px;
+    }
 
-/* ปุ่ม */
-.btn {
-  padding: 12px 20px;
-  font-size: 1rem;
-  border: none;
-  border-radius: 30px;
-  cursor: pointer;
-  color: white;
-  transition: .2s;
-}
+    /* LOGIN */
+    #loginScreen{
+      max-width:480px;
+      margin:0 auto;
+    }
 
-.btn:hover { transform: scale(1.05); }
+    .form-group{
+      margin-bottom:12px;
+    }
 
-.btn-start { background: #ff6b81; }
-.btn-next { background: #1e90ff; }
-.btn-restart { background: #2ed573; }
+    label{
+      display:block;
+      margin-bottom:4px;
+      font-size:0.95rem;
+      color:#333;
+    }
 
-/* กล่องคำถาม */
-.question-box {
-  background: #fff9db;
-  border: 2px solid #ffd36b;
-  padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 15px;
-}
+    input[type="text"],
+    input[type="password"]{
+      width:100%;
+      padding:10px 12px;
+      border-radius:10px;
+      border:1px solid #ccc;
+      font-size:0.95rem;
+    }
 
-/* ช้อยส์ */
-.choice-btn {
-  width: 100%;
-  text-align: left;
-  padding: 12px 12px 12px 45px;
-  margin: 6px 0;
-  border-radius: 15px;
-  border: none;
-  font-size: 1rem;
-  background: #e8f9fd;
-  color: #222;
-  cursor: pointer;
-  position: relative;
-  transition: .2s;
-}
+    .btn{
+      border:none;
+      border-radius:999px;
+      padding:10px 18px;
+      font-size:0.95rem;
+      cursor:pointer;
+      color:#fff;
+      margin:4px 4px 4px 0;
+      transition:transform .15s,box-shadow .15s,opacity .15s;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:6px;
+    }
 
-.choice-btn:hover { background:#d0f1ff; transform: scale(1.03); }
+    .btn:hover{
+      transform:translateY(-1px);
+      box-shadow:0 4px 10px rgba(0,0,0,0.18);
+      opacity:0.95;
+    }
 
-.choice-btn span.label {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 26px;
-  height: 26px;
-  background: #ff6b81;
-  border-radius: 50%;
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
+    .btn-green{background:#2ecc71;}
+    .btn-blue{background:#3498db;}
+    .btn-red{background:#e74c3c;}
 
-/* เมื่อเลือกคำตอบ */
-.correct { background:#d4fcd4 !important; border:2px solid #2ed573; }
-.wrong { background:#ffd7d7 !important; border:2px solid #ff6b6b; }
+    .login-actions{
+      display:flex;
+      flex-wrap:wrap;
+      justify-content:space-between;
+      align-items:center;
+      margin-top:10px;
+      gap:6px;
+    }
 
-/* กล่องคำอธิบาย */
-.feedback {
-  display: none;
-  margin-top: 10px;
-  padding: 12px;
-  border-radius: 12px;
-  font-size: 1rem;
-  background: #ecf0f1;
-}
+    .link{
+      background:none;
+      border:none;
+      padding:0;
+      margin:0;
+      color:#1a73e8;
+      font-size:0.9rem;
+      cursor:pointer;
+      text-decoration:underline;
+    }
 
-/* หน้าเริ่มเกม */
-#startScreen { text-align:center; }
+    .hint{
+      font-size:0.85rem;
+      color:#777;
+      margin-top:8px;
+    }
 
-#playerInput {
-  width: 75%;
-  padding: 10px;
-  border-radius: 12px;
-  border: 2px solid #ff6b81;
-  font-size: 1.1rem;
-}
+    /* MAIN APP */
+    #appScreen{display:none;}
 
-/* สรุปคะแนน */
-#summaryScreen { display:none; text-align:center; }
+    .top-bar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      flex-wrap:wrap;
+      gap:8px;
+    }
 
-.score-box {
-  background:#fff1c1;
-  padding:20px;
-  border-radius:15px;
-  margin-top:15px;
-}
-</style>
+    .user-info{
+      font-size:0.9rem;
+      color:#333;
+    }
+
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      margin:10px -4px 16px;
+    }
+
+    .tab{
+      padding:8px 14px;
+      margin:4px;
+      border-radius:999px;
+      border:none;
+      cursor:pointer;
+      font-size:0.9rem;
+      color:#fff;
+      background:linear-gradient(135deg,#ff9f43,#ff6b1a);
+      opacity:0.85;
+      transition:opacity .15s,transform .15s,box-shadow .15s;
+    }
+
+    .tab:hover{
+      opacity:1;
+      transform:translateY(-1px);
+      box-shadow:0 3px 8px rgba(0,0,0,0.18);
+    }
+
+    .tab.active{
+      opacity:1;
+      box-shadow:0 3px 8px rgba(0,0,0,0.22);
+    }
+
+    .badge{
+      font-size:0.75rem;
+      background:#e74c3c;
+      color:#fff;
+      padding:2px 6px;
+      border-radius:999px;
+      margin-left:4px;
+    }
+
+    .content{
+      border-radius:14px;
+      background:#f7fbff;
+      padding:16px;
+      border:1px solid #dde8f5;
+      min-height:200px;
+    }
+
+    .section{display:none;}
+    .section.active{display:block;}
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:12px;
+    }
+
+    .card-small{
+      background:#ffffff;
+      border-radius:12px;
+      border:1px solid #e3e3e3;
+      padding:12px 14px;
+    }
+
+    .card-small h3{
+      margin:0 0 4px;
+      font-size:1rem;
+      color:#004e92;
+    }
+
+    .metric{
+      font-size:1.4rem;
+      font-weight:600;
+      margin:4px 0;
+    }
+
+    .label{
+      font-size:0.8rem;
+      color:#777;
+    }
+
+    textarea,
+    select{
+      width:100%;
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid #ccc;
+      font-size:0.9rem;
+      resize:vertical;
+    }
+
+    .row{
+      display:flex;
+      flex-wrap:wrap;
+      gap:10px;
+    }
+
+    .row > div{flex:1 1 220px;}
+
+    .muted{
+      font-size:0.85rem;
+      color:#777;
+    }
+
+    .admin-only-tag{
+      font-size:0.75rem;
+      color:#e74c3c;
+      margin-left:4px;
+    }
+
+    @media(max-width:600px){
+      .card{padding:18px 14px;}
+    }
+  </style>
 </head>
-
 <body>
-<div class="container">
+<div class="card">
+  <h1>Smart Facility Management</h1>
+  <p class="subtitle">ระบบบริหารอาคารสถานที่อัจฉริยะ สำหรับโรงเรียน</p>
 
-<!-- ⭐ หน้าเริ่มเกม ⭐ -->
-<section id="startScreen">
-  <h1>🎮 เกมทายสถานการณ์เสี่ยง 🎮</h1>
-  <p>พิมพ์ชื่อผู้เล่นก่อนเริ่มเกม</p>
-  <input type="text" id="playerInput" placeholder="เช่น ใบเอ้, รตี, อ๊อฟฟี่" />
-  <br><br>
-  <button class="btn btn-start" id="startBtn">เริ่มเกม ▶</button>
-</section>
+  <!-- LOGIN SCREEN -->
+  <section id="loginScreen">
+    <div class="form-group">
+      <label for="username">ชื่อผู้ใช้</label>
+      <input type="text" id="username" placeholder="เช่น teacher01, student01, admin">
+    </div>
+    <div class="form-group">
+      <label for="password">รหัสผ่าน</label>
+      <input type="password" id="password" placeholder="กรอกรหัสผ่าน">
+    </div>
 
-<!-- ⭐ หน้าคำถาม ⭐ -->
-<section id="gameScreen" style="display:none;">
-  <h1>Healthy Hero 💡</h1>
-  <p style="text-align:center; font-size:1.1rem; color:#d6336c;">
-    ผู้เล่น: <span id="playerName"></span>
-  </p>
+    <div class="login-actions">
+      <button class="btn btn-blue" onclick="login()">เข้าสู่ระบบ</button>
+      <div>
+        <button class="link" onclick="alert('ฟังก์ชันลืมรหัสผ่าน (ตัวอย่าง)')">ลืมรหัสผ่าน</button>
+        <span style="margin:0 4px;">|</span>
+        <button class="link" onclick="alert('ฟังก์ชันสมัครสมาชิก (ตัวอย่าง)')">สมัครสมาชิก</button>
+      </div>
+    </div>
 
-  <p>ข้อที่ <span id="qNumber">1</span> / <span id="qTotal">10</span></p>
-  <p>คะแนน: <span id="score">0</span></p>
+    <div style="margin-top:10px;">
+      <button class="btn btn-green" onclick="loginAsAdmin()">เข้าสู่โหมดผู้ดูแล (Admin)</button>
+    </div>
 
-  <div class="question-box">
-    <div id="questionText">กำลังโหลด...</div>
-  </div>
+    <p class="hint">
+      * ตัวอย่างสำหรับทดลองระบบ: ใช้ชื่อผู้ใช้ <strong>admin</strong> เพื่อเข้าสู่ระบบในโหมดผู้ดูแล<br>
+      * ในการใช้งานจริงสามารถเชื่อมต่อกับระบบบัญชีโรงเรียน (SSO) ได้ในภายหลัง
+    </p>
+  </section>
 
-  <div id="choicesContainer"></div>
+  <!-- APP SCREEN -->
+  <section id="appScreen">
+    <div class="top-bar">
+      <div class="user-info">
+        ผู้ใช้: <strong><span id="displayUser"></span></strong>
+        <span id="roleBadge" class="badge" style="display:none;">ADMIN</span>
+      </div>
+      <button class="btn btn-red" onclick="logout()">ออกจากระบบ</button>
+    </div>
 
-  <div id="feedback" class="feedback"></div>
+    <div class="tabs">
+      <button class="tab active" data-section="dashboard" onclick="switchSection(event)">Dashboard ผู้บริหาร</button>
+      <button class="tab" data-section="booking" onclick="switchSection(event)">จองห้อง / ยืมอุปกรณ์</button>
+      <button class="tab" data-section="maintenance" onclick="switchSection(event)">แจ้งซ่อมออนไลน์</button>
+      <button class="tab admin-only" data-section="energy" onclick="switchSection(event)">
+        เปิด–ปิดไฟและแอร์ <span class="admin-only-tag">Admin</span>
+      </button>
+      <button class="tab admin-only" data-section="cctv" onclick="switchSection(event)">
+        ดูกล้องวงจรปิด <span class="admin-only-tag">Admin</span>
+      </button>
+      <button class="tab" data-section="assets" onclick="switchSection(event)">ข้อมูลอาคารและอุปกรณ์</button>
+      <button class="tab" data-section="sso" onclick="switchSection(event)">บัญชีโรงเรียน (SSO)</button>
+    </div>
 
-  <br>
-  <button class="btn btn-next" id="nextBtn" disabled>ข้อถัดไป ▶</button>
-</section>
+    <div class="content">
+      <!-- DASHBOARD -->
+      <div class="section active" id="section-dashboard">
+        <h2>Dashboard สำหรับผู้บริหาร</h2>
+        <p class="muted">ภาพรวมการใช้พื้นที่ พลังงาน และงานซ่อมในโรงเรียน (ข้อมูลตัวอย่าง)</p>
+        <div class="grid">
+          <div class="card-small">
+            <h3>การใช้ห้องเรียนวันนี้</h3>
+            <p class="metric">18 / 24</p>
+            <p class="label">ห้องที่ถูกจองใช้งาน</p>
+          </div>
+          <div class="card-small">
+            <h3>พลังงานไฟฟ้า (ประมาณการ)</h3>
+            <p class="metric">76%</p>
+            <p class="label">เทียบกับค่าเฉลี่ยปกติ</p>
+          </div>
+          <div class="card-small">
+            <h3>งานแจ้งซ่อมค้างอยู่</h3>
+            <p class="metric">5 รายการ</p>
+            <p class="label">อยู่ระหว่างดำเนินการ</p>
+          </div>
+          <div class="card-small">
+            <h3>สถานะระบบ SSO</h3>
+            <p class="metric">เชื่อมต่อ</p>
+            <p class="label">ครู–นักเรียนสามารถเข้าใช้งานได้</p>
+          </div>
+        </div>
+      </div>
 
-<!-- ⭐ หน้าสรุปคะแนน ⭐ -->
-<section id="summaryScreen">
-  <h1>🎉 ผลสรุปของเกม 🎉</h1>
-  <p style="font-size:1.3rem;">ผู้เล่น: <b><span id="finalName"></span></b></p>
+      <!-- BOOKING -->
+      <div class="section" id="section-booking">
+        <h2>ระบบจองห้องและยืมอุปกรณ์ออนไลน์</h2>
+        <p class="muted">ตัวอย่างฟอร์มการจองสำหรับครู–นักเรียน</p>
+        <div class="row">
+          <div>
+            <div class="form-group">
+              <label>เลือกประเภทการจอง</label>
+              <select>
+                <option>จองห้องเรียน</option>
+                <option>จองห้องประชุม</option>
+                <option>ยืมอุปกรณ์โสตฯ / IT</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ชื่อห้อง / อุปกรณ์</label>
+              <input type="text" placeholder="เช่น ห้องประชุม 1, โปรเจคเตอร์, ลำโพง">
+            </div>
+            <div class="form-group">
+              <label>วัน–เวลาใช้งาน</label>
+              <input type="text" placeholder="เช่น 12 มี.ค. 2569 09:00–11:00 น.">
+            </div>
+            <button class="btn btn-green">ส่งคำขอจอง</button>
+          </div>
+          <div>
+            <h3>รายการจองล่าสุด (ตัวอย่าง)</h3>
+            <ul class="muted">
+              <li>ครู ก. จองห้องประชุม 2 – 10:00–12:00 น.</li>
+              <li>ครู ข. ยืมโปรเจคเตอร์ – 13:00–15:00 น.</li>
+              <li>ชั้น ม.5/3 ใช้ห้องเรียนวิทย์ – ทั้งคาบบ่าย</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-  <div class="score-box">
-    <h2>คะแนนรวม: <span id="finalScore"></span> / <span id="finalTotal"></span></h2>
-    <p id="finalComment" style="font-size:1.1rem;"></p>
-  </div>
+      <!-- MAINTENANCE -->
+      <div class="section" id="section-maintenance">
+        <h2>ระบบแจ้งซ่อมออนไลน์</h2>
+        <p class="muted">ผู้ใช้สามารถแจ้งปัญหาเกี่ยวกับอาคารและอุปกรณ์ได้จากในระบบ</p>
+        <div class="row">
+          <div>
+            <div class="form-group">
+              <label>ประเภทปัญหา</label>
+              <select>
+                <option>ไฟฟ้า</option>
+                <option>แอร์</option>
+                <option>โต๊ะ–เก้าอี้</option>
+                <option>อุปกรณ์ IT</option>
+                <option>อื่น ๆ</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>สถานที่ / ห้อง</label>
+              <input type="text" placeholder="เช่น อาคาร 2 ห้อง 210">
+            </div>
+            <div class="form-group">
+              <label>รายละเอียดปัญหา</label>
+              <textarea rows="4" placeholder="เช่น ไฟกะพริบ, แอร์ไม่เย็น, หน้าจอไม่ติด ฯลฯ"></textarea>
+            </div>
+            <button class="btn btn-blue">ส่งคำขอแจ้งซ่อม</button>
+          </div>
+          <div>
+            <h3>งานซ่อมล่าสุด (ตัวอย่าง)</h3>
+            <ul class="muted">
+              <li>แอร์ห้อง 305 – อยู่ระหว่างรอช่าง</li>
+              <li>หลอดไฟหน้าอาคาร – ซ่อมเสร็จแล้ว</li>
+              <li>ปลั๊กไฟห้องโสตฯ – นัดซ่อมวันศุกร์</li>
+            </ul>
+          </div>
+        </div>
+      </div>
 
-  <br>
-  <button class="btn btn-restart" id="restartBtn">เล่นอีกครั้ง 🔁</button>
-</section>
+      <!-- ENERGY (ADMIN) -->
+      <div class="section" id="section-energy">
+        <h2>ระบบเปิด–ปิดไฟและแอร์อัตโนมัติ (สำหรับผู้ดูแลระบบ)</h2>
+        <p class="muted">ส่วนนี้เป็นตัวอย่างหน้าจอบริหารอุปกรณ์พลังงานในอาคาร</p>
+        <div class="grid">
+          <div class="card-small">
+            <h3>อาคาร 1 – ห้องเรียน</h3>
+            <p class="label">สถานะปัจจุบัน</p>
+            <p class="metric">ไฟ: ON / แอร์: ON</p>
+            <button class="btn btn-green">ปรับเป็นโหมดประหยัด</button>
+          </div>
+          <div class="card-small">
+            <h3>อาคาร 2 – ห้องประชุม</h3>
+            <p class="metric">ไฟ: OFF / แอร์: OFF</p>
+            <button class="btn btn-blue">เปิดใช้งานล่วงหน้า</button>
+          </div>
+          <div class="card-small">
+            <h3>ตั้งเวลาปิดอัตโนมัติ</h3>
+            <p class="muted">ตัวอย่าง: ปิดทุกอาคารเวลา 18:30 น.</p>
+            <button class="btn btn-red">แก้ไขการตั้งเวลา</button>
+          </div>
+        </div>
+      </div>
 
+      <!-- CCTV (ADMIN) -->
+      <div class="section" id="section-cctv">
+        <h2>ระบบดูกล้องวงจรปิดเพื่อความปลอดภัย (สำหรับผู้ดูแลระบบ)</h2>
+        <p class="muted">ตัวอย่าง layout สำหรับฝังภาพจากกล้องวงจรปิด (ในระบบจริงจะเชื่อมกับ feed ของกล้อง)</p>
+        <div class="grid">
+          <div class="card-small">
+            <h3>กล้อง 1 – ทางเข้าโรงเรียน</h3>
+            <div style="background:#000;height:120px;border-radius:8px;"></div>
+          </div>
+          <div class="card-small">
+            <h3>กล้อง 2 – โถงอาคารเรียน</h3>
+            <div style="background:#000;height:120px;border-radius:8px;"></div>
+          </div>
+          <div class="card-small">
+            <h3>กล้อง 3 – โรงอาหาร</h3>
+            <div style="background:#000;height:120px;border-radius:8px;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ASSETS -->
+      <div class="section" id="section-assets">
+        <h2>ระบบข้อมูลอาคารและอุปกรณ์</h2>
+        <p class="muted">ใช้เก็บข้อมูลอาคาร ห้อง และอุปกรณ์หลักในโรงเรียน</p>
+        <div class="row">
+          <div>
+            <h3>เพิ่มข้อมูล</h3>
+            <div class="form-group">
+              <label>ประเภท</label>
+              <select>
+                <option>อาคาร</option>
+                <option>ห้อง</option>
+                <option>อุปกรณ์</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>ชื่อ / รายละเอียด</label>
+              <input type="text" placeholder="เช่น อาคารเรียน 1, ห้องวิทยาศาสตร์, โปรเจคเตอร์ ฯลฯ">
+            </div>
+            <button class="btn btn-green">บันทึกข้อมูล</button>
+          </div>
+          <div>
+            <h3>ข้อมูลตัวอย่าง</h3>
+            <ul class="muted">
+              <li>อาคารเรียน 1 – 4 ชั้น – 24 ห้องเรียน</li>
+              <li>ห้องประชุมใหญ่ – รองรับ 200 คน</li>
+              <li>โปรเจคเตอร์ – 18 เครื่อง – ใช้งานอยู่ 14</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- SSO -->
+      <div class="section" id="section-sso">
+        <h2>การเชื่อมต่อกับบัญชีโรงเรียน (Single Sign-On: SSO)</h2>
+        <p class="muted">
+          แนวคิดการเชื่อม Smart Facility Management เข้ากับบัญชีโรงเรียน  
+          เพื่อให้ครู–นักเรียนเข้าใช้งานได้ด้วยบัญชีเดียว (One Account)
+        </p>
+        <ul class="muted">
+          <li>ใช้บัญชีอีเมลโรงเรียนในการเข้าสู่ระบบ</li>
+          <li>กำหนดสิทธิ์การใช้งานตามบทบาท (นักเรียน, ครู, ผู้บริหาร, admin)</li>
+          <li>ลดปัญหาการลืมรหัสผ่านหลายระบบ</li>
+          <li>สามารถเชื่อมกับระบบอื่นของโรงเรียน เช่น งานทะเบียน, LMS, ระบบห้องสมุด</li>
+        </ul>
+        <button class="btn btn-blue">ดูแผนผังการเชื่อมต่อ SSO (ตัวอย่าง)</button>
+      </div>
+    </div>
+  </section>
 </div>
 
 <script>
-// =======================
-// ชุดคำถาม 10 ข้อ (สถานการณ์ + ช้อยส์)
-// หมายเหตุ: correct ใช้ index เริ่มที่ 0 (A=0, B=1, C=2, D=3)
-// =======================
-const QUESTIONS = [
-  {
-    text: "1) มีคนแปลกหน้าในโซเชียลทักมาขอรูปตัวเองแบบ “ส่วนตัวมาก ๆ”",
-    choices: [
-      "ส่งรูปให้ แต่ไม่เห็นหน้า",                                // 0
-      "ส่งรูปให้เฉพาะเขาคนเดียว",                               // 1
-      "ปฏิเสธ ไม่ส่ง และบล็อก/รายงานบัญชี",                   // 2 ✔
-      "แคปแชตไปโพสต์ประจานในโซเชียล"                         // 3
-    ],
-    correct: 2,
-    explain: "การปฏิเสธและบล็อก/รายงานบัญชีเป็นวิธีที่ปลอดภัยที่สุด เพราะการส่งรูปส่วนตัวมีโอกาสถูกนำไปใช้ผิดวัตถุประสงค์."
-  },
-  {
-    text: "2) เพื่อนสนิทชวนไปบ้านหลังเลิกเรียน โดยบอกว่าพ่อแม่ไม่อยู่บ้าน",
-    choices: [
-      "ไปโดยไม่บอกใคร เพราะไว้ใจเพื่อน",                      // 0
-      "ไปแต่แชร์โลเคชันให้คนที่บ้านรู้ และกำหนดเวลาจะกลับ",    // 1
-      "ไม่ไปเด็ดขาดทุกกรณี",                                    // 2 ✔ (ตามที่อาจารย์ต้องการ)
-      "ไปแล้วนอนค้างโดยไม่ขออนุญาตผู้ปกครอง"                  // 3
-    ],
-    correct: 2,
-    explain: "ไม่ควรไปเด็ดขาด เพราะเสี่ยงต่อสถานการณ์ที่ควบคุมไม่ได้ ควรแจ้งผู้ปกครองและไปเป็นกลุ่มเพื่อความปลอดภัย."
-  },
-  {
-    text: "3) แฟนส่งข้อความมาว่า “ถ้ารักกันจริง ต้องยอมทำทุกอย่างที่เราขอ”",
-    choices: [
-      "ยอมทำตาม เพราะกลัวเสียแฟน",                             // 0
-      "คุยเปิดใจว่ารู้สึกไม่สบายใจกับคำขอ และขอให้เคารพขอบเขต", // 1 ✔
-      "เงียบ ไม่ตอบ แล้วปล่อยไป",                              // 2
-      "ปรึกษาแต่เพื่อนวัยเดียวกันโดยไม่บอกผู้ใหญ่"            // 3
-    ],
-    correct: 1,
-    explain: "การสื่อสารตรงไปตรงมาและยืนยันขอบเขต (consent) ของตัวเองเป็นการดูแลทั้งตนเองและความสัมพันธ์."
-  },
-  {
-    text: "4) มีคนในกลุ่มไลน์ส่งคลิปโป๊มา แล้วบอกว่า “ช่วยส่งต่อไปอีกกลุ่มหน่อย จะฮามาก”",
-    choices: [
-      "ส่งต่อให้กลุ่มอื่น ๆ อีกหลายกลุ่ม",                    // 0
-      "ดูคนเดียว แต่ไม่ลบและไม่ทำอะไร",                         // 1
-      "บอกให้หยุดส่ง และออกจากกลุ่มถ้ายังมีการส่งต่อ",        // 2 ✔
-      "แคปไปลงสตอรี่ล้อเลียนให้ทุกคนเห็น"                      // 3
-    ],
-    correct: 2,
-    explain: "การหยุดส่งต่อและเตือนเพื่อนช่วยลดการละเมิดและลดความเสี่ยงด้านกฎหมายเกี่ยวกับสื่ออนาจาร."
-  },
-  {
-    text: "5) คุณรู้สึกไม่สบายใจเวลามีเพื่อนบางคนชอบแตะตัวหรือกอดโดยไม่ได้ถามก่อน",
-    choices: [
-      "เงียบ แล้วพยายามหลีกเลี่ยงเพื่อนคนนั้น",              // 0
-      "หัวเราะกลบเกลื่อน แม้จะไม่สบายใจ",                      // 1
-      "บอกตรง ๆ ว่า “ไม่สบายใจ ขอให้หยุด” และบอกครูถ้าพฤติกรรมไม่หยุด", // 2 ✔
-      "แกล้งแตะตัวเพื่อนกลับให้แรงกว่า"                        // 3
-    ],
-    correct: 2,
-    explain: "การบอกความรู้สึกอย่างชัดเจน และขอให้หยุด พร้อมขอความช่วยเหลือจากครู ช่วยปกป้องขอบเขตของตนเอง."
-  },
-  {
-    text: "6) คุณมีคำถามเกี่ยวกับเรื่องเพศ การคุมกำเนิด และโรคติดต่อทางเพศ",
-    choices: [
-      "ค้นหาในเว็บใดก็ได้แบบไม่สนแหล่งที่มา",               // 0
-      "ถามเพื่อนวัยเดียวกัน เพราะสนิทที่สุด",                  // 1
-      "ปรึกษาครูอนามัย ครูแนะแนว หรือบุคลากรสาธารณสุข",    // 2 ✔
-      "ถามคนแปลกหน้าในโซเชียลที่ดูใจดี"                      // 3
-    ],
-    correct: 2,
-    explain: "ข้อมูลเรื่องเพศและสุขภาพควรมาจากผู้เชี่ยวชาญหรือแหล่งที่เชื่อถือได้เพื่อความถูกต้องและปลอดภัย."
-  },
-  {
-    text: "7) มีคนรู้จักใหม่ในโซเชียลชวนคุณไปเจอที่ห้าง โดยบอกว่าไม่ต้องบอกใคร",
-    choices: [
-      "ไปคนเดียว เพราะเป็นที่สาธารณะ",                        // 0
-      "ไปกับเพื่อน แต่ไม่บอกผู้ปกครอง",                        // 1
-      "ปฏิเสธ ไม่ไปพบ และหยุดคุยกับคน ๆ นั้น",                // 2 ✔
-      "ให้โลเคชันบ้านเพื่อมารับที่หน้าบ้าน"                    // 3
-    ],
-    correct: 2,
-    explain: "การปฏิเสธไม่ไปพบคนแปลกหน้าและหยุดติดต่อ ช่วยลดความเสี่ยงต่อการถูกหลอกลวงและอันตราย."
-  },
-  {
-    text: "8) เพื่อนในห้องชอบโพสต์รูปที่สุ่มเสี่ยงต่อการถูกคอมเมนต์ไม่เหมาะสม และชวนคุณทำตาม",
-    choices: [
-      "ทำตามเพื่อน เพื่อไม่ให้ตกเทรนด์",                    // 0
-      "บอกเพื่อนด้วยความหวังดีว่ามีความเสี่ยง และเลือกไม่โพสต์แบบนั้น", // 1 ✔
-      "แคปรูปเพื่อนไปเมาท์ในกลุ่มอื่น",                      // 2
-      "ไม่พูดอะไร เพราะคิดว่าเป็นเรื่องของเพื่อน"             // 3
-    ],
-    correct: 1,
-    explain: "การเตือนเพื่อนด้วยความหวังดี และเลือกไม่ทำตามพฤติกรรมเสี่ยง ช่วยป้องกันผลเสียระยะยาวในโลกออนไลน์."
-  },
-  {
-    text: "9) ในกลุ่มแชตมีคนล้อเลียนเรื่องเพศสภาพและรสนิยมทางเพศของเพื่อนอีกคน",
-    choices: [
-      "ร่วมล้อไปด้วย จะได้เข้ากับกลุ่ม",                     // 0
-      "เงียบ ไม่พูดอะไร เพราะไม่อยากมีปัญหา",                 // 1
-      "บอกให้หยุดล้อ เพราะกระทบความรู้สึก และไม่เคารพผู้อื่น", // 2 ✔
-      "แคปไปส่งต่อให้คนอื่นดูต่อ"                             // 3
-    ],
-    correct: 2,
-    explain: "การกล้าเตือนและยืนหยัดไม่เห็นด้วยกับการล้อเลียน ช่วยสร้างบรรยากาศที่เคารพซึ่งกันและกัน."
-  },
-  {
-    text: "10) มีคนขอรหัสผ่านโซเชียลมีเดียของคุณ โดยอ้างว่า “ถ้าไว้ใจกันต้องให้ดูได้”",
-    choices: [
-      "ให้รหัสผ่านไป เพื่อพิสูจน์ว่าไว้ใจได้",              // 0
-      "ให้รหัสเฉพาะบางแอปที่คิดว่าไม่สำคัญ",                 // 1
-      "ปฏิเสธอย่างสุภาพ และอธิบายว่ารหัสผ่านเป็นเรื่องส่วนตัว", // 2 ✔
-      "ให้รหัสไปก่อน แล้วค่อยไปเปลี่ยนใหม่ทีหลัง"            // 3
-    ],
-    correct: 2,
-    explain: "รหัสผ่านเป็นข้อมูลส่วนตัว ไม่ควรบอกใคร การปฏิเสธอย่างชัดเจนเป็นทางเลือกที่ปลอดภัยที่สุด."
-  }
-];
+  let isAdmin = false;
 
-let index = 0;
-let score = 0;
-const total = QUESTIONS.length;
-document.getElementById("qTotal").textContent = total;
+  function login(){
+    const user = document.getElementById("username").value.trim();
+    const pass = document.getElementById("password").value.trim();
 
-// =======================
-// เริ่มเกม
-// =======================
-document.getElementById("startBtn").onclick = () => {
-  const name = document.getElementById("playerInput").value.trim();
-  if (name === "") { alert("กรุณากรอกชื่อ"); return; }
+    if(!user || !pass){
+      alert("กรุณากรอกชื่อผู้ใช้และรหัสผ่าน");
+      return;
+    }
 
-  document.getElementById("playerName").textContent = name;
+    // ตัวอย่าง: ถ้าใส่ชื่อ admin จะถือเป็นผู้ดูแลระบบ
+    isAdmin = (user.toLowerCase() === "admin");
 
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("gameScreen").style.display = "block";
+    document.getElementById("displayUser").textContent = user;
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appScreen").style.display = "block";
 
-  loadQuestion();
-};
+    const roleBadge = document.getElementById("roleBadge");
+    const adminTabs = document.querySelectorAll(".admin-only");
 
-// =======================
-// โหลดคำถาม
-// =======================
-function loadQuestion() {
-  const q = QUESTIONS[index];
-  document.getElementById("qNumber").textContent = index + 1;
-  document.getElementById("questionText").textContent = q.text;
-
-  const choicesContainer = document.getElementById("choicesContainer");
-  choicesContainer.innerHTML = "";
-
-  document.getElementById("feedback").style.display = "none";
-  document.getElementById("nextBtn").disabled = true;
-
-  q.choices.forEach((c, i) => {
-    const btn = document.createElement("button");
-    btn.className = "choice-btn";
-    btn.innerHTML = `<span class="label">${String.fromCharCode(65 + i)}</span> ${c}`;
-    btn.onclick = () => checkAnswer(btn, i);
-    choicesContainer.appendChild(btn);
-  });
-}
-
-// =======================
-// ตรวจคำตอบ
-// =======================
-function checkAnswer(btn, chosenIndex) {
-  const q = QUESTIONS[index];
-  const allButtons = document.querySelectorAll(".choice-btn");
-
-  allButtons.forEach(b => b.disabled = true);
-
-  const feedback = document.getElementById("feedback");
-
-  if (chosenIndex === q.correct) {
-    score++;
-    feedback.className = "feedback correct";
-    feedback.innerHTML = "✔ ตอบถูก!<br>" + q.explain;
-    btn.classList.add("correct");
-  } else {
-    feedback.className = "feedback wrong";
-    feedback.innerHTML = "✘ ยังไม่ใช่คำตอบที่ดีที่สุด<br>" + q.explain;
-    btn.classList.add("wrong");
-    allButtons[q.correct].classList.add("correct");
+    if(isAdmin){
+      roleBadge.style.display = "inline-block";
+      adminTabs.forEach(tab => tab.style.display = "inline-flex");
+    }else{
+      roleBadge.style.display = "none";
+      adminTabs.forEach(tab => tab.style.display = "none");
+    }
   }
 
-  feedback.style.display = "block";
-  document.getElementById("score").textContent = score;
-  document.getElementById("nextBtn").disabled = false;
-}
-
-// =======================
-// ปุ่มถัดไป
-// =======================
-document.getElementById("nextBtn").onclick = () => {
-  index++;
-  if (index < QUESTIONS.length) {
-    loadQuestion();
-  } else {
-    showSummary();
+  function loginAsAdmin(){
+    document.getElementById("username").value = "admin";
+    document.getElementById("password").value = "admin123";
+    login();
   }
-};
 
-// =======================
-// สรุปผลคะแนน
-// =======================
-function showSummary() {
-  document.getElementById("gameScreen").style.display = "none";
-  document.getElementById("summaryScreen").style.display = "block";
+  function logout(){
+    isAdmin = false;
+    document.getElementById("appScreen").style.display = "none";
+    document.getElementById("loginScreen").style.display = "block";
+    document.getElementById("username").value = "";
+    document.getElementById("password").value = "";
+  }
 
-  document.getElementById("finalName").textContent =
-    document.getElementById("playerName").textContent;
+  function switchSection(evt){
+    const target = evt.currentTarget;
+    const sectionName = target.getAttribute("data-section");
 
-  document.getElementById("finalScore").textContent = score;
-  document.getElementById("finalTotal").textContent = total;
+    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+    target.classList.add("active");
 
-  let comment = "";
-  const ratio = score / total;
-
-  if (ratio >= 0.8) comment = "เยี่ยมมาก! คุณวิเคราะห์ความเสี่ยงได้ดีมาก 👍";
-  else if (ratio >= 0.5)
-    comment = "ทำได้ดี แต่ยังพัฒนาได้อีก ลองอ่านคำอธิบายเพิ่มนะ 💡";
-  else comment = "ควรทบทวนสถานการณ์เพื่อเพิ่มความปลอดภัยในชีวิตจริง ⚠";
-
-  document.getElementById("finalComment").textContent = comment;
-}
-
-// =======================
-// เริ่มใหม่
-// =======================
-document.getElementById("restartBtn").onclick = () => {
-  index = 0;
-  score = 0;
-  document.getElementById("score").textContent = score;
-  document.getElementById("summaryScreen").style.display = "none";
-  document.getElementById("gameScreen").style.display = "block";
-  loadQuestion();
-};
+    document.querySelectorAll(".section").forEach(sec => sec.classList.remove("active"));
+    document.getElementById("section-" + sectionName).classList.add("active");
+  }
 </script>
-
 </body>
 </html>
